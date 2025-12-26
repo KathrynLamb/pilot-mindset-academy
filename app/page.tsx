@@ -8,19 +8,35 @@ export default function PilotMindsetWaitlist() {
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!email || !email.includes('@')) {
-      setError('Please enter a valid email address');
+    setError("");
+  
+    if (!email || !email.includes("@")) {
+      setError("Please enter a valid email address");
       return;
     }
-    
-    // Store in memory for demo - you'll wire this up to your backend
-    console.log('Waitlist signup:', email);
-    setSubmitted(true);
-    setError('');
+  
+    try {
+      const res = await fetch("/api/waitlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+  
+      const data = await res.json();
+  
+      if (!res.ok) {
+        setError(data.error || data.message || "Something went wrong");
+        return;
+      }
+  
+      setSubmitted(true);
+    } catch {
+      setError("Network error. Please try again.");
+    }
   };
+  
 
   const skills = [
     {
